@@ -9,8 +9,11 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const Lyrics = ({
   sounds,
+  sources,
   currentLrcs,
   statePlayers,
+  stateSolos,
+  stateOutputMutes,
   selectedSong,
   loading,
   setLoading,
@@ -35,6 +38,7 @@ const Lyrics = ({
   const [lyricsLoading ,setLyricsLoading] = useState(true);
   const [noTrackLrc, setNoTrackLrc] = useState(false);
   const [lrcContent, setLrcContent] = useState(null);
+  const [lyricsMutes, setLyricsMutes] = useState([]);
 
   const lyricsRef = useRef();
 
@@ -76,7 +80,6 @@ const Lyrics = ({
       lyricsRef?.current?.scrollTo({top: 0, behavior: "smooth"});
     }
   }, [playerStopped])
-
 
   const displayCurrentLyrics = () => {
     if (lrcContent) {
@@ -122,6 +125,81 @@ const Lyrics = ({
     }
   }, [currentLyrics])
 
+  const EVERYONE_PATTERNS = ["ALL", "EVERYONE", "EVERYBODY", "ALLE", "TUTTI", "ENSEMBLE"];
+  const resolveUnmutedTracks = (pattern, previousTrackÍds) => {
+    const names = Object.values(sources).map((source) => source.name);
+
+    // start with an empty set or the previous track ids, if "+" is given
+    let initialTrackIds;
+    if (pattern.startsWith("+")) {
+      initialTrackIds = new Set(previousTrackÍds);
+      pattern = pattern.slice(1); // remove "+" from the pattern
+    } else {
+      initialTrackIds = new Set();
+    }
+
+    // check for "everyone" pattern
+    if (EVERYONE_PATTERNS.includes(pattern)) {
+      return new Set(new Array(names.length).fill().map((_, i) => i));
+    }
+
+    // match each name against the pattern
+    for (let i = 0; i < names.length; i++) {
+      for (let namePart of names[i].split(" ")) {
+        const nameUpper = namePart.toUpperCase().replace(/[^A-Z]/g, ""); // replace non-alphabet characters
+        const shortNameUpper = nameUpper.replace(/[AEIOU]/g, ""); // remove vowels
+
+        // return single match (merged with the initial track ids)
+        if (nameUpper.startsWith(pattern) || shortNameUpper.startsWith(pattern)) {
+          return initialTrackIds.union(new Set([i]));
+        }
+      }
+    }
+
+    // console.warn(`No match found for pattern "${pattern}". Assuming "ALL".`);
+    return new Set(new Array(names.length).fill().map((_, i) => i));
+  };
+
+  useEffect(() => {
+    const pianoTrackId = Object
+      .values(sources)
+      .findIndex((source) => source.name.toUpperCase().includes("PIANO"));
+    const onlyPianoActive = stateOutputMutes && stateOutputMutes.every((mute, index) => index === pianoTrackId ? !mute : mute);
+
+    // generate lyrics => trackId mapping
+    const lyricsTrackIdMap = [];
+    let previousTrackÍds = resolveUnmutedTracks("ALL"); // assume ALL at the beginning
+    for (let i = 0; i < currentLyrics.length; i++) {
+      // get the part before the colon and match all uppercase words (at least 3 characters long)
+      const nameSection = currentLyrics[i].text.split(":")[0];
+      const namePatterns = [...nameSection.matchAll(/(\+?[A-Z]{3,})/g)].map((match) => match[0]);
+      // console.log(i, "patterns:", namePatterns);
+
+      let trackIds = new Set();
+      if (onlyPianoActive) {
+        // if only the piano accompaniment is playing, unmute all lyrics
+        trackIds = resolveUnmutedTracks("ALL");
+      } else if (namePatterns.length === 0) {
+        // if no patterns were given, use the previous track ids
+        trackIds = previousTrackÍds;
+      } else {
+        // resolve each pattern to the actual names
+        trackIds = namePatterns.reduce((acc, pattern) => acc.union(resolveUnmutedTracks(pattern, previousTrackÍds)), new Set());
+      }
+      // console.log("->", trackIds);
+
+      lyricsTrackIdMap.push(trackIds);
+      previousTrackÍds = trackIds;
+    }
+
+    // mute line if all corresponding tracks are muted
+    const lyricsMutesMap = lyricsTrackIdMap.map((trackIds) => [...trackIds].every((trackId) => stateOutputMutes && stateOutputMutes[trackId]));
+    // const lyricsMutesMap = lyricsTrackIdMap.map((trackIds) => false);
+
+    // update reactive lyrics mute state
+    setLyricsMutes(lyricsMutesMap);
+  }, [currentLyrics, stateOutputMutes]);
+
   const goToLyricsPosition = (position) => {
     if (Transport.state === "started") {
       Transport.pause();
@@ -152,6 +230,7 @@ const Lyrics = ({
                   line={line}
                   key={index}
                   index={index}
+                  muted={lyricsMutes[index]}
                   goToLyricsPosition={goToLyricsPosition}
                   displayedLyricsIndex={displayedLyricsIndex}
                   isBigScreen={isBigScreen}

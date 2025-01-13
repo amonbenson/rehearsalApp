@@ -23,6 +23,7 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
   const [trackDuration, setTrackDuration] = useState(0);
   const [statePlayers, setStatePlayers] = useState(null);
   const [stateSolos, setStateSolos] = useState(null);
+  const [stateOutputMutes, setStateOutputMutes] = useState(null);
   const [isStopped, setIsStopped] = useState(true);
   const [playerStopped, setPlayerStopped] = useState(true);
   const [playersLoaded, setPlayersLoaded] = useState(false);
@@ -532,6 +533,7 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
                         setStatePlayers={setStatePlayers}
                         stateSolos={stateSolos}
                         setStateSolos={setStateSolos}
+                        setStateOutputMutes={setStateOutputMutes}
                         formatTime={formatTime}
                         setLoading={setLoading}
                         loading={loading}
@@ -587,8 +589,11 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
                         >
                           <Lyrics
                             sounds={songs}
+                            sources={currentSources}
                             currentLrcs={currentLrcs}
                             statePlayers={statePlayers}
+                            stateSolos={stateSolos}
+                            stateOutputMutes={stateOutputMutes}
                             setLoading={setLoading}
                             loading={loading}
                             globalSeek={globalSeek}

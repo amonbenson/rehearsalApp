@@ -13,7 +13,7 @@ function getScrollParent(node) {
   }
 }
 
-const OneLine = ({ line, index, displayedLyricsIndex, goToLyricsPosition, isBigScreen, isDesktopOrLaptop, isTabletOrMobile}) => {
+const OneLine = ({ line, index, displayedLyricsIndex, muted, goToLyricsPosition, isBigScreen, isDesktopOrLaptop, isTabletOrMobile}) => {
   const [lineActive, setLineActive] = useState(false);
   const lineRef = useRef()
 
@@ -52,6 +52,7 @@ const OneLine = ({ line, index, displayedLyricsIndex, goToLyricsPosition, isBigS
           fontSize: isTabletOrMobile ? "1.5rem" : "1.5rem",
           fontWeight: lineActive ? "bold" : "normal",
           color: lineActive ? "#fdc873" : "white",
+          opacity: muted ? 0.5 : 1,
         }}
       >
         {line.text}

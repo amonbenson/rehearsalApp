@@ -13,6 +13,7 @@ const Channel = ({
   setStatePlayers,
   stateSolos,
   setStateSolos,
+  setStateOutputMutes,
   setTrackDuration,
   trackDuration,
   selectedSong,
@@ -42,6 +43,31 @@ const Channel = ({
   const playersRef = useRef(null);
   const solosRef = useRef({});
   const intervalRef = useRef(null);
+
+  const updateOutputMutes = () => {
+    // check if any track is soloed
+    const anySoloed = Object.values(stateSolos).some((solo) => solo.solo);
+
+    // calculate the new output mutes
+    const newOutputMutes = sources.map((_, i) => {
+      if (statePlayers.player(`${i}`).mute) {
+        // if player is muted, output must be muted as well
+        return true;
+      } else if (stateSolos[i].solo) {
+        // if this track is soloed, output must be unmuted
+        return false;
+      } else if (anySoloed) {
+        // if any track is soloed (cannot be this one because of the previous check), output must be muted
+        return true;
+      } else {
+        // otherwise, the output is unmuted
+        return false;
+      }
+    });
+
+    // update the reactive variable
+    setStateOutputMutes(newOutputMutes);
+  };
 
   useEffect(() => {
     if (playersRef.current) {
@@ -186,6 +212,7 @@ const Channel = ({
                 statePlayers={statePlayers}
                 clearMute={clearMute}
                 stateSolos={stateSolos}
+                updateOutputMutes={updateOutputMutes}
               />
             ))
           )}

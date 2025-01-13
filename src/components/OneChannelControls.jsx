@@ -5,7 +5,7 @@ import iconUnmuted from "../assets/img/unmuted.png"
 import iconSolo from "../assets/img/solo.png"
 import "./Channel.css"
 
-const OneChannelControls = ({ stateSolos, players, index, sources, isTabletOrMobile, track, clearMute}) => {
+const OneChannelControls = ({ stateSolos, players, index, sources, isTabletOrMobile, track, clearMute, updateOutputMutes}) => {
 
   const [channelVolume, setChannelVolume] = useState(-10);
   const [isMuted, setIsMuted] = useState(false);
@@ -19,12 +19,14 @@ const handleVolumeChange = (value) => {
 const handleMute = () => {
     players.player(`${index}`).mute = !players.player(`${index}`).mute
     setIsMuted(players.player(`${index}`).mute);
+    updateOutputMutes();
 }
 
 const handleSolo = () => {
   // players.player(`${index}`).solo = !players.player(`${index}`).solo
   stateSolos[index].solo = !isSolo
   setIsSolo(stateSolos[index].solo)
+  updateOutputMutes();
 } 
 
 useEffect(() => {
