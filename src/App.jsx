@@ -3,7 +3,6 @@ import "./App.css";
 import Channel from "./components/Channel";
 import { formatTime } from "../utils/lrcParser";
 import Lyrics from "./components/Lyrics";
-import { useMediaQuery } from "react-responsive";
 import loadingSpinner from "./assets/img/loading.gif";
 import { getStorage, getBlob, ref } from "firebase/storage";
 import { Link } from "react-router-dom";
@@ -12,6 +11,8 @@ import { useUser } from "./context/UserContext";
 import { fetchAlbumsList } from "../utils/databaseOperations";
 import { fetchSongsList } from "../utils/databaseOperations";
 import { sortArrayByNumberKey } from "../utils/utils";
+import { usePlayer } from "./core/audio/multitrackPlayer";
+import { useMediaQueries } from "../utils/hooks";
 
 const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
   const [selectedAlbum, setSelectedAlbum] = useState("");
@@ -41,17 +42,52 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
   const { user, authLoading } = useUser();
 
   // Media Queries via react-responsive
-  const isDesktopOrLaptop = useMediaQuery({ query: "(min-width: 1224px)" });
-  const isBigScreen = useMediaQuery({ query: "(min-width: 1824px)" });
-  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
-  const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
-  const isRetina = useMediaQuery({ query: "(min-resolution: 2dppx)" });
+  const { isDesktopOrLaptop, isBigScreen, isTabletOrMobile } = useMediaQueries();
 
   // Create a state for the playing status
   const [playing, setPlaying] = useState(false);
   const [globalSeek, setGlobalSeek] = useState(0);
   const [seekUpdateInterval, setSeekUpdateInterval] = useState(null);
   const [noAlbums, setNoAlbums] = useState(false);
+
+  const storage = getStorage();
+  const player = usePlayer();
+
+  const resolveStorageUrl = async (url) => {
+    const httpsReference = ref(storage, url);
+    const blob = await getBlob(httpsReference);
+    return URL.createObjectURL(blob);
+  }
+
+  useEffect(() => {
+    const wrapper = async () => {
+      // skip while not loaded
+      if (!songs || songs.length === 0 || !selectedSong) {
+        return;
+      }
+
+      // generate the track metadata
+      const songData = songs.find(song => song.id === selectedSong)
+      const trackConfigs = await Promise.all(songData.tracks
+        .sort((a, b) => String(a.number).localeCompare(String(b.number)))
+        .map(async track => {
+          const url = await resolveStorageUrl(track.src);
+          const name = track.name;
+          return { url, name };
+        }));
+
+      // load the tracks
+      await player.load(trackConfigs);
+
+      // player.play();
+      setBlobsReady(true);
+    };
+    wrapper();
+  }, [songs, selectedSong]);
+
+  useEffect(() => () => {
+    player.unload();
+  }, []);
 
   const fetchAlbums = async () => {
     try {
@@ -188,58 +224,58 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
 
   const fetchCurrentTracks = async () => {
     setBlobsReady(false);
-    const storage = getStorage();
-    if (songs.length !== 0 && !loading) {
-      const currentTracks = songs.find(
-        (song) => song.id === selectedSong
-      )?.tracks;
-      const currentSourcesArray = await Promise.all(
-        currentTracks.map(async (track) => {
-          const httpsReference = ref(storage, track.src);
-          const blob = await getBlob(httpsReference);
-          const blobURL = URL.createObjectURL(blob);
-          return { ...track, src: blobURL }; // create a new object with the updated src
-        })
-      );
-      if (currentSourcesArray !== 0) {
-        const sortedCurrentSourcesArray = sortArrayByNumberKey(currentSourcesArray)
-        setCurrentSources(sortedCurrentSourcesArray); // set the state with the new array
-        if (trackId) {
-          const trackExists = currentSourcesArray.find(
-            (track) => track.id === trackId
-          );
-          if (trackExists) {
-            setSelectedTrack(trackId);
-            return;
-          }
-          // console.log("You can't view this album.")
-        }
-        const lastTrack = localStorage.getItem("selected-track");
-        if (lastTrack) {
-          const trackExists = currentSourcesArray.find(
-            (track) => track.id === JSON.parse(lastTrack)
-          );
-          if (trackExists) {
-            const parsedTrackId = JSON.parse(lastTrack);
-            setSelectedTrack(parsedTrackId);
-            setSearchParams({
-              ...Object.fromEntries(searchParams),
-              trackId: parsedTrackId,
-            });
-            return;
-          }
+    // const storage = getStorage();
+    // if (songs.length !== 0 && !loading) {
+    //   const currentTracks = songs.find(
+    //     (song) => song.id === selectedSong
+    //   )?.tracks;
+    //   const currentSourcesArray = await Promise.all(
+    //     currentTracks.map(async (track) => {
+    //       const httpsReference = ref(storage, track.src);
+    //       const blob = await getBlob(httpsReference);
+    //       const blobURL = URL.createObjectURL(blob);
+    //       return { ...track, src: blobURL }; // create a new object with the updated src
+    //     })
+    //   );
+    //   if (currentSourcesArray !== 0) {
+    //     const sortedCurrentSourcesArray = sortArrayByNumberKey(currentSourcesArray)
+    //     setCurrentSources(sortedCurrentSourcesArray); // set the state with the new array
+    //     if (trackId) {
+    //       const trackExists = currentSourcesArray.find(
+    //         (track) => track.id === trackId
+    //       );
+    //       if (trackExists) {
+    //         setSelectedTrack(trackId);
+    //         return;
+    //       }
+    //       // console.log("You can't view this album.")
+    //     }
+    //     const lastTrack = localStorage.getItem("selected-track");
+    //     if (lastTrack) {
+    //       const trackExists = currentSourcesArray.find(
+    //         (track) => track.id === JSON.parse(lastTrack)
+    //       );
+    //       if (trackExists) {
+    //         const parsedTrackId = JSON.parse(lastTrack);
+    //         setSelectedTrack(parsedTrackId);
+    //         setSearchParams({
+    //           ...Object.fromEntries(searchParams),
+    //           trackId: parsedTrackId,
+    //         });
+    //         return;
+    //       }
           
-        }
-        setSelectedTrack(currentSourcesArray[0].id); // Set the first album as the default selected album
-        setSearchParams({
-          ...Object.fromEntries(searchParams),
-          trackId: currentSourcesArray[0].id,
-        });
-      }
+    //     }
+    //     setSelectedTrack(currentSourcesArray[0].id); // Set the first album as the default selected album
+    //     setSearchParams({
+    //       ...Object.fromEntries(searchParams),
+    //       trackId: currentSourcesArray[0].id,
+    //     });
+    //   }
 
-      // console.log(currentSourcesArray)
-      // setSelectedTrack(currentSourcesArray)
-    }
+    //   // console.log(currentSourcesArray)
+    //   // setSelectedTrack(currentSourcesArray)
+    // }
   };
 
   useEffect(() => {
@@ -514,39 +550,7 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
                 >
                   <div className="tracks" style={{ width: "100%" }}>
                     <div className="singleTrack" style={{ width: "100%" }}>
-                      <Channel
-                        sources={currentSources}
-                        globalSeek={globalSeek}
-                        setGlobalSeek={setGlobalSeek}
-                        userSeek={userSeek}
-                        selectedSong={selectedSong}
-                        setSelectedSong={setSelectedSong}
-                        isBigScreen={isBigScreen}
-                        isDesktopOrLaptop={isDesktopOrLaptop}
-                        isTabletOrMobile={isTabletOrMobile}
-                        playing={playing}
-                        setPlaying={setPlaying}
-                        setTrackDuration={setTrackDuration}
-                        trackDuration={trackDuration}
-                        statePlayers={statePlayers}
-                        setStatePlayers={setStatePlayers}
-                        stateSolos={stateSolos}
-                        setStateSolos={setStateSolos}
-                        formatTime={formatTime}
-                        setLoading={setLoading}
-                        loading={loading}
-                        sounds={songs}
-                        isStopped={isStopped}
-                        setIsStopped={setIsStopped}
-                        setPlayerStopped={setPlayerStopped}
-                        playerStopped={playerStopped}
-                        setSeekUpdateInterval={setSeekUpdateInterval}
-                        seekUpdateInterval={seekUpdateInterval}
-                        playersLoaded={playersLoaded}
-                        setPlayersLoaded={setPlayersLoaded}
-                        clearMute={clearMute}
-                        setClearMute={setClearMute}
-                      />
+                      <Channel />
                     </div>
                   </div>
                 </div>

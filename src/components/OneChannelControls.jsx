@@ -1,37 +1,49 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import iconMuted from "../assets/img/muted.png"
 import iconUnmuted from "../assets/img/unmuted.png"
 import iconSolo from "../assets/img/solo.png"
+import { Track, usePlayer } from "../core/audio/multitrackPlayer";
+import { useMediaQueries, useEvent } from "../../utils/hooks";
 import "./Channel.css"
 
-const OneChannelControls = ({ stateSolos, players, index, sources, isTabletOrMobile, track, clearMute}) => {
+const OneChannelControls = ({ index, track }) => {
 
-  const [channelVolume, setChannelVolume] = useState(-10);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isSolo, setIsSolo] = useState(false);
+  const { isTabletOrMobile } = useMediaQueries();
+  const player = usePlayer();
 
-const handleVolumeChange = (value) => {
-  players.player(`${index}`).volume.value = value
-  setChannelVolume(value)
-}
+  const [mute, setMute] = useState(track.mute);
+  const [solo, setSolo] = useState(track.solo);
+  const [level, setLevel] = useState(track.level);
+  const [outputMute, setOutputMute] = useState(track.outputMute);
 
-const handleMute = () => {
-    players.player(`${index}`).mute = !players.player(`${index}`).mute
-    setIsMuted(players.player(`${index}`).mute);
-}
+  useEffect(() => {
+    const listener = () => setOutputMute(track.outputMute);
+    player.on("trackSettingsChange", listener);
+    return () => player.off("trackSettingsChange", listener);
+  }, []);
+  // useEffect(useEvent(player, "trackSettingsChange", () => setOutputMute(track.outputMute)), []);
 
-const handleSolo = () => {
-  // players.player(`${index}`).solo = !players.player(`${index}`).solo
-  stateSolos[index].solo = !isSolo
-  setIsSolo(stateSolos[index].solo)
-} 
+  const handleLevelChange = (value) => {
+    setLevel(value);
+    track.level = value;
+    player.applyTrackSettings();
+  }
 
-useEffect(() => {
-  setIsMuted(false);
-  setIsSolo(false);
-  setChannelVolume(-10);
-}, [clearMute])
+  const handleMute = () => {
+    const value = !mute;
+    setMute(value);
+    track.mute = value;
+    player.applyTrackSettings();
+  }
+
+  const handleSolo = () => {
+    const value = !solo;
+    setSolo(value);
+    track.solo = value;
+    player.applyTrackSettings();
+  }
 
   return (
     <div style={{display: "flex", marginBottom: 7}}>
@@ -42,16 +54,16 @@ useEffect(() => {
         <input
           className="volumeSlider"
           type="range"
-          min="-30"
-          max="0"
-          step="1"
+          min="0"
+          max="1"
+          step="0.02"
           orient="vertical"
-          value={channelVolume}
+          value={level}
           style={{
             width: isTabletOrMobile ? "0.4rem" : null,
           }}
           // onTimeUpdate={() => handleTimeUpdate()}
-          onChange={(e) => {handleVolumeChange(e.target.value)}}
+          onChange={(e) => {handleLevelChange(e.target.value)}}
         />
         <div
           className="muteBox"
@@ -63,17 +75,17 @@ useEffect(() => {
         >
           <div className="muteSolo" style={{display:"flex", flexDirection:"column"}}>
             <button
-              style={{ backgroundColor: "transparent", padding: "0.5rem" }}
+              style={{ backgroundColor: !mute ? "transparent" : "#fdc873", padding: "0.5rem" }}
               onClick={handleMute}
             >
               <img
-                src={isMuted ? iconMuted : iconUnmuted}
+                src={outputMute ? iconMuted : iconUnmuted}
                 alt=""
                 style={{ width: isTabletOrMobile ? "2rem" : "1.5rem" }}
               />
             </button>
             <button
-              style={{ backgroundColor: !isSolo ? "transparent" : "#fdc873", padding: "0.5rem" }}
+              style={{ backgroundColor: !solo ? "transparent" : "#fdc873", padding: "0.5rem" }}
               onClick={handleSolo}
             >
               <img
@@ -87,6 +99,11 @@ useEffect(() => {
       </div>
     </div>
   );
+};
+
+OneChannelControls.propTypes = {
+  index: PropTypes.number.isRequired,
+  track: PropTypes.instanceOf(Track).isRequired,
 };
 
 export default OneChannelControls;
