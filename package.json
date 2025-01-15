@@ -17,8 +17,6 @@
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
     "@react-input/mask": "^1.2.5",
-    "@vue-reactivity/watch": "^0.2.0",
-    "@vue/reactivity": "^3.5.13",
     "dotenv": "^16.4.5",
     "events": "^3.3.0",
     "ffmpeg": "^0.0.4",

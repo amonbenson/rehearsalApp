@@ -13,6 +13,9 @@ import { fetchSongsList } from "../utils/databaseOperations";
 import { sortArrayByNumberKey } from "../utils/utils";
 import { usePlayer } from "./core/audio/multitrackPlayer";
 import { useMediaQueries } from "../utils/hooks";
+import SingletonExecutor, { ReplacementError } from "../utils/singletonExecutor";
+
+const loadPlayerExecutor = new SingletonExecutor();
 
 const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
   const [selectedAlbum, setSelectedAlbum] = useState("");
@@ -77,7 +80,7 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
         }));
 
       // load the tracks
-      await player.load(trackConfigs);
+      player.load(trackConfigs);
 
       // player.play();
       setBlobsReady(true);
