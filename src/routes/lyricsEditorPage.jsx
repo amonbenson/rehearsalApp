@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import LrcEditor from '../components/LrcEditor'
 import loadingSpinner from '../assets/img/loading.gif'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { useMediaQuery } from 'react-responsive'
+import { useMediaBreakpoints } from '../../utils/hooks/media'
 
 const LyricsEditorPage = () => {
 
@@ -13,7 +13,7 @@ const LyricsEditorPage = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+    const { isTabletOrMobile } = useMediaBreakpoints();
 
     useEffect(() => {
         if(searchParams){

@@ -7,8 +7,8 @@ import { sortSongsList } from '../../utils/utils';
 import "./albumDetailPage.css";
 import { useUser } from '../context/UserContext';
 import { fetchSongsList } from '../../utils/databaseOperations';
-import { useMediaQuery } from 'react-responsive';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const AlbumDetailPage = () => {
     
@@ -19,7 +19,7 @@ const AlbumDetailPage = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+    const { isTabletOrMobile } = useMediaBreakpoints();
 
     const {user, authLoading} = useUser();
 

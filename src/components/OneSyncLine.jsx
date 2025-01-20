@@ -1,12 +1,12 @@
 import React, {useRef, useState, useEffect} from 'react'
 import { InputMask } from '@react-input/mask'
-import { useMediaQuery } from 'react-responsive';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const OneSyncLine = ({index, line, timestamps, currentLineIndex, handleEditTimestamp, goToLyricsPosition}) => {
     const [lineActive, setLineActive] = useState(false);
     const lineRef = useRef()
 
-    const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+    const { isTabletOrMobile } = useMediaBreakpoints();
   
     useEffect(() => {
       if (currentLineIndex == null) {

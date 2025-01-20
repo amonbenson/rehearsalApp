@@ -7,7 +7,7 @@ import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
 import GoogleSignInIcon from '../assets/img/googlesignin.svg'
-import { useMediaQuery } from 'react-responsive';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 import { db } from '../../utils/firebase';
 
 const Login = ({mode, setMode}) => {
@@ -21,7 +21,7 @@ const Login = ({mode, setMode}) => {
 
   const navigate = useNavigate();
 
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

@@ -5,7 +5,7 @@ import { auth } from '../../utils/firebase';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '../assets/img/logo.svg';
 import './Navbar.css';
-import { useMediaQuery } from 'react-responsive';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const Navbar = () => {
   const { user } = useUser();
@@ -14,7 +14,7 @@ const Navbar = () => {
   const [songId, setSongId] = useState('');
   const [trackId, setTrackId] = useState('');
   const [paramsSet, setParamsSet] = useState(false);
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+  const { isTabletOrMobile } = useMediaBreakpoints();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [searchParams] = useSearchParams();

@@ -1,7 +1,10 @@
 import React, { useCallback } from 'react'
 import {useDropzone} from 'react-dropzone';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
-const FileUploadDropZone = ({setSelectedFiles, selectedFiles, initializeTrackNames, initializeTrackNumbers, isTabletOrMobile}) => {
+const FileUploadDropZone = ({setSelectedFiles, selectedFiles, initializeTrackNames, initializeTrackNumbers}) => {
+    const { isTabletOrMobile } = useMediaBreakpoints();
+
     const onDrop = useCallback((files) => {
       if(selectedFiles.length === 0){
         setSelectedFiles(files);

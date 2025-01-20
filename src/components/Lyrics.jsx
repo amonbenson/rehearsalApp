@@ -6,6 +6,7 @@ import "./Lyrics.css";
 import { Transport } from "tone";
 import { Link } from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
+import { useMediaBreakpoints } from "../../utils/hooks/media";
 
 const Lyrics = ({
   sounds,
@@ -18,9 +19,6 @@ const Lyrics = ({
   setGlobalSeek,
   userSeek,
   setUserSeek,
-  isBigScreen,
-  isDesktopOrLaptop,
-  isTabletOrMobile,
   selectedTrack,
   selectedAlbum,
   setNoLrcs,
@@ -28,6 +26,8 @@ const Lyrics = ({
   hideMixer,
   playerStopped
 }) => {
+  const { isTabletOrMobile } = useMediaBreakpoints();
+
   const [displayedLyrics, setDisplayedLyrics] = useState("");
   const [currentLyrics, setCurrentLyrics] = useState([]);
   const [displayedLyricsIndex, setDisplayedLyricsIndex] = useState(0);
@@ -154,9 +154,6 @@ const Lyrics = ({
                   index={index}
                   goToLyricsPosition={goToLyricsPosition}
                   displayedLyricsIndex={displayedLyricsIndex}
-                  isBigScreen={isBigScreen}
-                  isDesktopOrLaptop={isDesktopOrLaptop}
-                  isTabletOrMobile={isTabletOrMobile}
                 />
               </div>
             );

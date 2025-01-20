@@ -17,10 +17,10 @@ import ShareCodePage from './routes/shareCodePage.jsx'
 import Navbar from './components/Navbar.jsx'
 import { UserProvider } from './context/UserContext.jsx'
 import { authLoader } from './loaders/authLoader.js'
-import { useMediaQuery } from 'react-responsive'
+import { useMediaBreakpoints } from '../utils/hooks/media.js'
 
 function NavbarWrapper(){
-  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
   // Define styles for desktop and mobile
   const navbarStyle = isTabletOrMobile ? {

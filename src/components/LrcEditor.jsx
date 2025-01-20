@@ -4,7 +4,6 @@ import Channel from './Channel';
 import LyricsSync from './LyricsSync';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../utils/firebase';
-import { useMediaQuery } from 'react-responsive';
 import { getStorage, ref, getBlob } from 'firebase/storage';
 import loadingSpinner from '../assets/img/loading.gif';
 import { sortSongsList } from '../../utils/utils';
@@ -15,6 +14,7 @@ import { fetchSongsList } from '../../utils/databaseOperations';
 import { Link } from 'react-router-dom';
 import { sortArrayByNumberKey } from '../../utils/utils';
 import LoadingSpinner from './LoadingSpinner';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const LrcEditor = ({albumId, songId, trackId, searchParams, setSearchParams}) => {
   const [selectedAlbum, setSelectedAlbum] = useState("");
@@ -42,7 +42,7 @@ const LrcEditor = ({albumId, songId, trackId, searchParams, setSearchParams}) =>
   const [noAlbums, setNoAlbums] = useState(false);
   const [isStopped, setIsStopped] = useState(false);
   const [playerStopped, setPlayerStopped] = useState(true);
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' });
+  const { isTabletOrMobile } = useMediaBreakpoints();
   const [hideSelects, setHideSelects] = useState(false);
 
   const {user, authLoading} = useUser();
@@ -337,8 +337,6 @@ const LrcEditor = ({albumId, songId, trackId, searchParams, setSearchParams}) =>
                       trackDuration={trackDuration}
                       playing={playing}
                       setPlaying={setPlaying}
-                      isTabletOrMobile={isTabletOrMobile}
-                      isDesktopOrLaptop={true}
                       formatTime={formatTimeMilliseconds}
                       setLoading={setLoading}
                       loading={loading}

@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect, useRef } from "react";
+import { useMediaBreakpoints } from "../../utils/hooks/media";
 
 function getScrollParent(node) {
   if (node == null) {
@@ -13,7 +14,9 @@ function getScrollParent(node) {
   }
 }
 
-const OneLine = ({ line, index, displayedLyricsIndex, goToLyricsPosition, isBigScreen, isDesktopOrLaptop, isTabletOrMobile}) => {
+const OneLine = ({ line, index, displayedLyricsIndex, goToLyricsPosition }) => {
+  const { isTabletOrMobile } = useMediaBreakpoints();
+
   const [lineActive, setLineActive] = useState(false);
   const lineRef = useRef()
 

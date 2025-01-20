@@ -19,13 +19,13 @@ import resetIcon from '../assets/img/reset.svg'
 import loadingIcon from '../assets/img/loading.gif'
 import OneSyncLine from './OneSyncLine';
 import iconSave from "../assets/img/save.svg"
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const LyricsSync = ({
   statePlayers,
   globalSeek,
   setGlobalSeek,
   selectedSong,
-  isTabletOrMobile,
   hideMixer,
   setHideMixer,
   setPlaying,
@@ -47,6 +47,8 @@ const LyricsSync = ({
   playersLoaded,
   setHideSelects
 }) => {
+  const { isTabletOrMobile } = useMediaBreakpoints();
+
   const [lyrics, setLyrics] = useState('');
   const [lines, setLines] = useState([]);
   const [timestamps, setTimestamps] = useState([]);

@@ -32,7 +32,7 @@ import FileUploadDropZone from "./FileUploadDropZone";
 import "./FileUpload.css"
 import DragHandleIcon from "../assets/img/drag-handle.svg"
 import { useUser } from "../context/UserContext";
-import { useMediaQuery } from "react-responsive";
+import { useMediaBreakpoints } from "../../utils/hooks/media";
 
 const SortableItem = ({ id, children }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -102,7 +102,7 @@ const FileUpload = () => {
 
 
   //Responsive
-  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
   // Preventing dragging in inputs and buttons
 
@@ -596,7 +596,7 @@ const FileUpload = () => {
               </div>
             ) : null}
             <Droppable id="file-drop" style={{ width: "33%" }}>
-              <FileUploadDropZone isTabletOrMobile={isTabletOrMobile} setSelectedFiles={setSelectedFiles} selectedFiles={selectedFiles} initializeTrackNames={initializeTrackNames} initializeTrackNumbers={initializeTrackNumbers} />
+              <FileUploadDropZone setSelectedFiles={setSelectedFiles} selectedFiles={selectedFiles} initializeTrackNames={initializeTrackNames} initializeTrackNumbers={initializeTrackNumbers} />
               {selectedFiles.length > 0 && (
                 <div style={{ display: "flex", flexDirection: "column", padding: 20 }} className="glasstransparent">
                   <h3>Selected Files</h3>

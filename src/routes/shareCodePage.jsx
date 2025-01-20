@@ -1,12 +1,12 @@
 import React from 'react'
 import { useUser } from '../context/UserContext'
 import ShareCodeInput from '../components/ShareCodeInput';
-import { useMediaQuery } from 'react-responsive';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const ShareCodePage = () => {
 
     const {user, authLoading} = useUser();
-    const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+    const { isTabletOrMobile } = useMediaBreakpoints();
 
   return (
     <div style={{width: isTabletOrMobile ? '90vw' : 400}}>

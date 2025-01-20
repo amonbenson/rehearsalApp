@@ -6,6 +6,7 @@ import iconPlay from "../assets/img/play.png";
 import iconPause from "../assets/img/pause.png";
 import iconStop from "../assets/img/stop.png";
 import loadingSpinner from "../assets/img/loading.gif";
+import { useMediaBreakpoints } from "../../utils/hooks/media";
 
 const Channel = ({
   formatTime,
@@ -22,9 +23,6 @@ const Channel = ({
   sources,
   loading,
   setLoading,
-  isBigScreen,
-  isTabletOrMobile,
-  isDesktopOrLaptop,
   playing,
   setPlaying,
   sounds,
@@ -42,6 +40,8 @@ const Channel = ({
   const playersRef = useRef(null);
   const solosRef = useRef({});
   const intervalRef = useRef(null);
+
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
   useEffect(() => {
     if (playersRef.current) {
@@ -181,8 +181,6 @@ const Channel = ({
                 track={track}
                 index={index}
                 sources={sources}
-                isTabletOrMobile={isTabletOrMobile}
-                isDesktopOrLaptop={isDesktopOrLaptop}
                 statePlayers={statePlayers}
                 clearMute={clearMute}
                 stateSolos={stateSolos}

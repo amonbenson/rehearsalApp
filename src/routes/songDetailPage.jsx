@@ -8,7 +8,7 @@ import UpdateLrcFile from '../components/UpdateLrcFile';
 import DeleteTrack from '../components/DeleteTrack';
 import "./songDetailPage.css";
 import { useUser } from '../context/UserContext';
-import { useMediaQuery } from 'react-responsive';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 import { sortArrayByNumberKey } from '../../utils/utils';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -23,7 +23,7 @@ const SongDetailPage = () => {
 
     const {user, authLoading} = useUser();
 
-    const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+    const { isTabletOrMobile } = useMediaBreakpoints();
 
     const fetchSongs = async () => {
         setLoading(true);

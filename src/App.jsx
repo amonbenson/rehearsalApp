@@ -3,7 +3,6 @@ import "./App.css";
 import Channel from "./components/Channel";
 import { formatTime } from "../utils/lrcParser";
 import Lyrics from "./components/Lyrics";
-import { useMediaQuery } from "react-responsive";
 import loadingSpinner from "./assets/img/loading.gif";
 import { getStorage, getBlob, ref } from "firebase/storage";
 import { Link } from "react-router-dom";
@@ -12,6 +11,7 @@ import { useUser } from "./context/UserContext";
 import { fetchAlbumsList } from "../utils/databaseOperations";
 import { fetchSongsList } from "../utils/databaseOperations";
 import { sortArrayByNumberKey } from "../utils/utils";
+import { useMediaBreakpoints } from "../utils/hooks/media";
 
 const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
   const [selectedAlbum, setSelectedAlbum] = useState("");
@@ -41,11 +41,7 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
   const { user, authLoading } = useUser();
 
   // Media Queries via react-responsive
-  const isDesktopOrLaptop = useMediaQuery({ query: "(min-width: 1224px)" });
-  const isBigScreen = useMediaQuery({ query: "(min-width: 1824px)" });
-  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
-  const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
-  const isRetina = useMediaQuery({ query: "(min-resolution: 2dppx)" });
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
   // Create a state for the playing status
   const [playing, setPlaying] = useState(false);
@@ -521,9 +517,6 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
                         userSeek={userSeek}
                         selectedSong={selectedSong}
                         setSelectedSong={setSelectedSong}
-                        isBigScreen={isBigScreen}
-                        isDesktopOrLaptop={isDesktopOrLaptop}
-                        isTabletOrMobile={isTabletOrMobile}
                         playing={playing}
                         setPlaying={setPlaying}
                         setTrackDuration={setTrackDuration}
@@ -596,9 +589,6 @@ const App = ({ albumId, songId, trackId, searchParams, setSearchParams }) => {
                             setGlobalSeek={setGlobalSeek}
                             setUserSeek={setUserSeek}
                             userSeek={userSeek}
-                            isBigScreen={isBigScreen}
-                            isDesktopOrLaptop={isDesktopOrLaptop}
-                            isTabletOrMobile={isTabletOrMobile}
                             selectedTrack={selectedTrack}
                             setNoLrcs={setNoLrcs}
                             noLrcs={noLrcs}

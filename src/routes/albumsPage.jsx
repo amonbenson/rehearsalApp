@@ -5,8 +5,8 @@ import "./albumDetailPage.css"
 import { fetchAlbumsList } from '../../utils/databaseOperations';
 import { useUser } from '../context/UserContext';
 import albumPlaceholder from '../assets/img/albumArtPlaceholder.jpg';
-import { useMediaQuery } from 'react-responsive';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const AlbumsPage = () => {
   const [albums, setAlbums] = useState([]);
@@ -15,7 +15,7 @@ const AlbumsPage = () => {
   const [error, setError] = useState(null);
   const [noAlbums, setNoAlbums] = useState(false);
 
-  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
   const { user, authLoading } = useUser();
 

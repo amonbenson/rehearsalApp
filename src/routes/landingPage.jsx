@@ -6,16 +6,14 @@ import { signOut } from 'firebase/auth';
 import Logo from '../assets/img/logo.svg'
 import './landingPage.css';
 import { useSearchParams } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive';
+import { useMediaBreakpoints } from '../../utils/hooks/media';
 
 const LandingPage = () => {
   const { user, authLoading } = useUser()
   const [searchParams, setSearchParams] = useSearchParams();
   const [info, setInfo] = useState();
 
-  const isDesktopOrLaptop = useMediaQuery({ query: "(min-width: 1224px)" });
-  const isBigScreen = useMediaQuery({ query: "(min-width: 1824px)" });
-  const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const { isTabletOrMobile } = useMediaBreakpoints();
 
 
   const handleLogout = async () => {
